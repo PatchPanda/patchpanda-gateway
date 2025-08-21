@@ -1,0 +1,15 @@
+[build-system]
+requires = ["poetry-core>=2.1.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "patchpanda-gateway"
+version = "0.1.0"
+description = "PatchPanda Gateway"
+readme = "README.md"
+authors = ["Zafar (z.tahirov@gmail.com)"]
+packages = [{ include = "patchpanda", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+setuptools = "^60.0.0"

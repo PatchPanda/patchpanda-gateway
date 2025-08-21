@@ -18,7 +18,7 @@ Houses the GitHub App and public API.
 
 ```text
 patchpanda-gateway/
-├─ gateway/
+├─ src/patchpanda/gateway/
 │  ├─ api/                         # FastAPI routers
 │  │  ├─ webhooks.py               # POST /webhooks/github (HMAC verify)
 │  │  ├─ coverage.py               # POST /api/coverage, GET list/detail
