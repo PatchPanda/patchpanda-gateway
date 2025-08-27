@@ -61,3 +61,24 @@ docker-run: ## Run Docker container
 docker-clean: ## Clean Docker images and containers
 	docker system prune -f
 	docker image prune -f
+
+validate-github-app: ## Validate GitHub App configuration
+	poetry run python scripts/validate_github_app.py
+
+test-webhook-signature: ## Test webhook signature verification
+	poetry run python scripts/test_webhook_signature.py
+
+test-github-integration: ## Test GitHub integration through ngrok
+	poetry run python scripts/test_github_integration.py
+
+set-ngrok-url: ## Set ngrok URL in .env file
+	poetry run python scripts/set_ngrok_url.py
+
+setup-github-app: ## Show GitHub App setup instructions
+	@echo "📋 GitHub App Setup Instructions:"
+	@echo "1. Read the setup guide: docs/github-app-setup.md"
+	@echo "2. Create the PatchPanda-Dev umbrella GitHub App in GitHub Developer Settings"
+	@echo "3. Configure permissions and webhook events for the gateway component"
+	@echo "4. Install on your target repository"
+	@echo "5. Update your .env file with the app credentials"
+	@echo "6. Run 'make validate-github-app' to verify configuration"

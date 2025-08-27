@@ -1,5 +1,6 @@
 """GitHub webhook endpoints."""
 
+import json
 from typing import Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from fastapi.responses import JSONResponse
@@ -33,9 +34,20 @@ async def github_webhook(
         raise HTTPException(status_code=401, detail="Invalid signature")
 
     # Parse webhook payload
-    payload = await request.json()
+    try:
+        payload = await request.json()
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=422, detail="Invalid JSON payload")
+
+    # Create service instances
+    github_app_service = GitHubAppService()
+    auth_service = AuthService()
+    config_loader = ConfigLoaderService(github_app_service)
+    queue_service = QueueService()
+    checks_service = ChecksService(github_app_service)
 
     # Handle different event types
+    # Core events for the gateway functionality
     if x_github_event == "issue_comment":
         return await handle_issue_comment(
             payload, github_app_service, auth_service, config_loader, queue_service, checks_service
@@ -45,7 +57,7 @@ async def github_webhook(
             payload, github_app_service, auth_service, config_loader, queue_service, checks_service
         )
     else:
-        # Acknowledge other events
+        # Acknowledge other events (including any additional events you add later)
         return JSONResponse(content={"status": "acknowledged"})
 
 
