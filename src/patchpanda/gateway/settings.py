@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     github_app_private_key: str = Field(default="", json_schema_extra={"env": "GITHUB_APP_PRIVATE_KEY"})
     github_webhook_secret: str = Field(default="", json_schema_extra={"env": "GITHUB_WEBHOOK_SECRET"})
 
+    # Development
+    ngrok_url: str = Field(default="", json_schema_extra={"env": "NGROK_URL"})
+
     # Queue
     queue_backend: str = Field(default="redis", json_schema_extra={"env": "QUEUE_BACKEND"})
     sqs_queue_url: str = Field(default="", json_schema_extra={"env": "SQS_QUEUE_URL"})
