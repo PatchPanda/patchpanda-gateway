@@ -34,6 +34,16 @@ class Settings(BaseSettings):
     aws_access_key_id: str = Field(default="", json_schema_extra={"env": "AWS_ACCESS_KEY_ID"})
     aws_secret_access_key: str = Field(default="", json_schema_extra={"env": "AWS_SECRET_ACCESS_KEY"})
 
+    # Google Cloud Platform
+    gcp_project_id: str = Field(default="", json_schema_extra={"env": "GCP_PROJECT_ID"})
+    gcp_region: str = Field(default="us-central1", json_schema_extra={"env": "GCP_REGION"})
+    gcp_location: str = Field(default="us-central1", json_schema_extra={"env": "GCP_LOCATION"})
+    gcp_key_ring: str = Field(default="patchpanda-keys", json_schema_extra={"env": "GCP_KEY_RING"})
+    gcp_crypto_key: str = Field(default="patchpanda-crypto-key", json_schema_extra={"env": "GCP_CRYPTO_KEY"})
+    gcp_secrets_prefix: str = Field(default="patchpanda", json_schema_extra={"env": "GCP_SECRETS_PREFIX"})
+    gcp_use_default_credentials: bool = Field(default=True, json_schema_extra={"env": "GCP_USE_DEFAULT_CREDENTIALS"})
+    gcp_service_account_key_path: str = Field(default="", json_schema_extra={"env": "GCP_SERVICE_ACCOUNT_KEY_PATH"})
+
     # GitHub App
     github_app_id: str = Field(default="", json_schema_extra={"env": "GITHUB_APP_ID"})
     github_app_private_key: str = Field(default="", json_schema_extra={"env": "GITHUB_APP_PRIVATE_KEY"})

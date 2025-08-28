@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime, timedelta, timezone
 
 from ..settings import get_settings
+from ..security.secrets import SecretsManager
 
 
 class GitHubAppService:
@@ -13,17 +14,31 @@ class GitHubAppService:
 
     def __init__(self):
         self.settings = get_settings()
+        self.secrets_manager = SecretsManager()
         self._private_key = None
+        self._webhook_secret = None
 
     @property
-    def private_key(self) -> str:
-        """Get the GitHub App private key."""
+    async def private_key(self) -> str:
+        """Get the GitHub App private key from secrets manager."""
         if not self._private_key:
-            # TODO: Load from KMS/Secrets Manager
-            self._private_key = self.settings.github_app_private_key
+            self._private_key = await self.secrets_manager.get_github_private_key()
+            if not self._private_key:
+                # Fallback to environment variable
+                self._private_key = self.settings.github_app_private_key
         return self._private_key
 
-    def generate_jwt(self) -> str:
+    @property
+    async def webhook_secret(self) -> str:
+        """Get the webhook secret from secrets manager."""
+        if not self._webhook_secret:
+            self._webhook_secret = await self.secrets_manager.get_webhook_secret()
+            if not self._webhook_secret:
+                # Fallback to environment variable
+                self._webhook_secret = self.settings.github_webhook_secret
+        return self._webhook_secret
+
+    async def generate_jwt(self) -> str:
         """Generate JWT for GitHub App authentication."""
         now = datetime.now(timezone.utc)
         payload = {
@@ -32,7 +47,8 @@ class GitHubAppService:
             "iss": self.settings.github_app_id
         }
 
-        return jwt.encode(payload, self.private_key, algorithm="RS256")
+        private_key = await self.private_key
+        return jwt.encode(payload, private_key, algorithm="RS256")
 
     async def get_installation_token(self, installation_id: int) -> str:
         """Get installation access token for a repository."""
