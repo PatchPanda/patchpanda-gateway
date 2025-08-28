@@ -36,7 +36,7 @@ def test_github_integration():
     print("\n1️⃣ Testing health endpoint through ngrok...")
     try:
         with httpx.Client(timeout=10) as client:
-            response = client.get(f"{ngrok_url}/health")
+            response = client.get(f"{ngrok_url}/healthz")
             if response.status_code == 200 and response.json().get("status") == "healthy":
                 print("  ✅ Health endpoint accessible through ngrok")
             else:
