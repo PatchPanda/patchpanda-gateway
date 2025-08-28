@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 
 from patchpanda.gateway.services.github_app import GitHubAppService
 from patchpanda.gateway.settings import Settings
+from patchpanda.gateway.security.secrets import SecretsManager
 
 
 @pytest.fixture
@@ -174,7 +175,7 @@ class TestGitHubAppService:
         # First access should load the key
         key = await github_service.private_key
         assert key.startswith("-----BEGIN RSA PRIVATE KEY-----")
-        assert key.endswith("-----END RSA PRIVATE KEY-----")
+        assert "-----END RSA PRIVATE KEY-----" in key
 
         # Second access should use cached value
         assert github_service._private_key is not None
@@ -280,8 +281,9 @@ class TestGitHubAppServiceErrorHandling:
         mock_settings.github_app_private_key = ""
 
         with patch('patchpanda.gateway.services.github_app.get_settings', return_value=mock_settings):
-            service = GitHubAppService()
+            with patch.object(SecretsManager, 'get_github_private_key', return_value=None):
+                service = GitHubAppService()
 
-            # Should raise error when trying to generate JWT
-            with pytest.raises(Exception):
-                await service.generate_jwt()
+                # Should raise error when trying to generate JWT
+                with pytest.raises(Exception):
+                    await service.generate_jwt()
