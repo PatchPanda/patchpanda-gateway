@@ -30,11 +30,15 @@ def create_app() -> FastAPI:
 
     # Mount API routers
     app.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
-    app.include_router(coverage.router, prefix="/api/coverage", tags=["coverage"])
+    app.include_router(
+        coverage.router,
+        prefix="/api/coverage",
+        tags=["coverage"]
+    )
     app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
     app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
-    @app.get("/health")
+    @app.get("/healthz")
     async def health_check():
         """Health check endpoint."""
         return {"status": "healthy"}
