@@ -168,23 +168,25 @@ class TestGitHubAppService:
         assert github_service.settings is not None
         assert github_service._private_key is None
 
-    def test_private_key_property(self, github_service):
+    @pytest.mark.asyncio
+    async def test_private_key_property(self, github_service):
         """Test private key property."""
         # First access should load the key
-        key = github_service.private_key
+        key = await github_service.private_key
         assert key.startswith("-----BEGIN RSA PRIVATE KEY-----")
         assert key.endswith("-----END RSA PRIVATE KEY-----")
 
         # Second access should use cached value
         assert github_service._private_key is not None
-        assert github_service.private_key == key
+        assert await github_service.private_key == key
 
+    @pytest.mark.asyncio
     @patch('patchpanda.gateway.services.github_app.jwt.encode')
-    def test_generate_jwt(self, mock_jwt_encode, github_service):
+    async def test_generate_jwt(self, mock_jwt_encode, github_service):
         """Test JWT generation."""
         mock_jwt_encode.return_value = "mock.jwt.token"
 
-        jwt_token = github_service.generate_jwt()
+        jwt_token = await github_service.generate_jwt()
 
         assert jwt_token == "mock.jwt.token"
         mock_jwt_encode.assert_called_once()
@@ -192,7 +194,7 @@ class TestGitHubAppService:
         # Verify the call arguments
         call_args = mock_jwt_encode.call_args
         assert call_args[1]["algorithm"] == "RS256"
-        assert call_args[0][1] == github_service.private_key  # private key
+        assert call_args[0][1] == await github_service.private_key  # private key
 
     @pytest.mark.asyncio
     async def test_get_installation_token_placeholder(self, github_service):
@@ -239,7 +241,7 @@ class TestGitHubAppServiceIntegration:
         mock_jwt_encode.return_value = "mock.jwt.token"
 
         # Generate JWT
-        jwt = github_service.generate_jwt()
+        jwt = await github_service.generate_jwt()
         assert jwt == "mock.jwt.token"
 
         # Get installation token (placeholder)
@@ -254,8 +256,9 @@ class TestGitHubAppServiceIntegration:
 class TestGitHubAppServiceErrorHandling:
     """Test error handling in GitHub App service."""
 
+    @pytest.mark.asyncio
     @patch('patchpanda.gateway.services.github_app.jwt.encode')
-    def test_missing_app_id(self, mock_jwt_encode):
+    async def test_missing_app_id(self, mock_jwt_encode):
         """Test service with missing app ID."""
         mock_settings = Mock(spec=Settings)
         mock_settings.github_app_id = ""
@@ -266,10 +269,11 @@ class TestGitHubAppServiceErrorHandling:
             service = GitHubAppService()
 
             # Should still work but with empty app ID
-            jwt = service.generate_jwt()
+            jwt = await service.generate_jwt()
             assert jwt == "mock.jwt.token"
 
-    def test_missing_private_key(self):
+    @pytest.mark.asyncio
+    async def test_missing_private_key(self):
         """Test service with missing private key."""
         mock_settings = Mock(spec=Settings)
         mock_settings.github_app_id = "12345"
@@ -280,4 +284,4 @@ class TestGitHubAppServiceErrorHandling:
 
             # Should raise error when trying to generate JWT
             with pytest.raises(Exception):
-                service.generate_jwt()
+                await service.generate_jwt()

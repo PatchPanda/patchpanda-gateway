@@ -7,7 +7,7 @@ Houses the GitHub App and public API.
     * Enforces repo/team authorization
     * Loads .testbot.yml + server-side config
     * Exchanges installation tokens
-    * Enqueues “generate tests” jobs for the worker
+    * Enqueues "generate tests" jobs for the worker
 * This also exposes minimal REST endpoints for coverage ingestion and dashboard data
     * ... posts status/comments back to PRs
     * ... records audit events
@@ -15,6 +15,77 @@ Houses the GitHub App and public API.
     * No code generation happens here
     * This service is the control plane.
 
+## Cloud Provider Support
+
+PatchPanda Gateway supports multiple cloud providers for secrets management and encryption:
+
+### Google Cloud Platform (Recommended)
+- **Secret Manager**: Secure storage for application secrets
+- **Cloud KMS**: Encryption/decryption of sensitive data
+- **Service Account**: Secure authentication without key files
+- **Setup Guide**: See [GCP Setup Guide](docs/gcp-setup.md)
+
+### Amazon Web Services
+- **Secrets Manager**: Secure storage for application secrets
+- **KMS**: Encryption/decryption of sensitive data
+- **IAM**: Role-based access control
+
+### Local Development
+- Environment variables for development and testing
+- Automatic fallback to local secrets when cloud services unavailable
+
+## Quick Start
+
+### 1. Install Dependencies
+
+```bash
+# Install Python dependencies
+poetry install
+
+# Install GCP dependencies (if using GCP)
+poetry install
+```
+
+### 2. Configure Environment
+
+```bash
+# Copy environment template
+cp env.example .env
+
+# Edit with your configuration
+nano .env
+```
+
+### 3. Set Up Cloud Provider
+
+#### For GCP (Recommended)
+```bash
+# Run the GCP setup script
+python scripts/setup_gcp.py
+
+# Follow the setup guide
+docs/gcp-setup.md
+```
+
+#### For AWS
+```bash
+# Set AWS credentials in .env
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+```
+
+### 4. Run the Application
+
+```bash
+# Development mode
+poetry run uvicorn patchpanda.gateway.main:app --reload
+
+# Production mode
+poetry run patchpanda-gateway
+```
+
+## Project Structure
 
 ```text
 patchpanda-gateway/
